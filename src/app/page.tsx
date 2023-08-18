@@ -2,7 +2,23 @@ import { google } from 'googleapis';
 
 async function getData(page: number, limit: number, search= '') {
 
-  const auth = await google.auth.getClient({ scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'] });
+  const keyFile = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS as string);
+
+  // console.log(keyFile)
+
+  const auth = await google.auth.getClient({ 
+    credentials: {
+      type: keyFile.type,
+      audience: keyFile.audience,
+      token_url: keyFile.token_uri,
+      universe_domain: keyFile.universe_domain,
+      client_id: keyFile.client_id,
+      client_secret: keyFile.client_secret,
+      credential_source: keyFile.credential_source,
+      client_email: keyFile.client_email,
+      private_key: keyFile.private_key,
+
+  }, scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'] });
 
   const sheets = google.sheets({ version: 'v4', auth });
 
@@ -61,6 +77,8 @@ export default async function Home({
     typeof searchParams.search === 'string' ? searchParams.search : ''
 
   const data = await getData(page, limit, search)
+
+  // console.log(data)
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
